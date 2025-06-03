@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login - Banking System</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background-color: #f8f9fa; margin: 0; }
+        .login-container { max-width: 400px; width: 100%; padding: 30px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .login-container h1 { text-align: center; margin-bottom: 1.5rem; color: #343a40; }
+        .form-group label { font-weight: bold; margin-bottom: .5rem; }
+        .form-control { margin-bottom: 1rem; }
+        .btn-block { margin-top: 1.5rem; }
+        .extra-links { text-align: center; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <h1>Login to Banking System</h1>
+    <form th:action="@{/login}" method="post">
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" class="form-control" required/>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" class="form-control" required/>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Login</button>
+    </form>
+    <div th:if="${error != null}" class="alert alert-danger mt-3" role="alert" th:text="${error}">
+    </div>
+    <div class="extra-links">
+        <p>Don't have an account? <a th:href="@{/register}">Register here</a></p>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

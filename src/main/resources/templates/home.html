@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Banking System - Home</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding-top: 20px; padding-bottom: 20px; background-color: #f8f9fa; }
+        .container { max-width: 1100px; }
+        h1 { text-align: center; margin-bottom: 2rem; color: #343a40; }
+        .card { margin-bottom: 1.5rem; }
+        .card-header { background-color: #007bff; color: white; }
+        .user-info .badge { font-size: 100%; }
+        .logout-btn-container { text-align: right; margin-bottom: 1rem; }
+        .account-bank-name { font-size: 0.9em; color: #6c757d; }
+        @media (max-width: 767px) {
+            .row { flex-direction: column; }
+            .col-md-5, .col-md-7, .col-md-6 { max-width: 100%; flex: 0 0 100%; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div th:if="${customer != null}" class="logout-btn-container">
+        <a th:href="@{/logout}" class="btn btn-danger">Logout</a>
+    </div>
+
+    <h1>Welcome to Banking System</h1>
+
+    <!-- Flash Messages -->
+    <div th:if="${message != null}" class="alert alert-success" role="alert" th:text="${message}"></div>
+    <div th:if="${error != null}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+
+    <!-- Display customer info only if logged in -->
+    <div th:if="${customer != null}" class="card user-info">
+        <div class="card-body">
+            <h5 class="card-title">Welcome, <strong th:text="${customer.name}">User</strong>!</h5>
+        </div>
+    </div>
+
+    <div th:if="${customer == null}" class="alert alert-warning">
+        <p>Please <a th:href="@{/login}" class="alert-link">log in</a> to access your account.</p>
+    </div>
+
+    <!-- Account and bank info for authenticated users -->
+    <div th:if="${customer != null}">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="card">
+                    <div class="card-header">Your Accounts</div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush" th:if="${accounts != null && !accounts.isEmpty()}">
+                            <li class="list-group-item" th:each="account : ${accounts}">
+                                <span th:text="'ID: ' + ${account.id} + ' | Balance: ' + ${#numbers.formatCurrency(account.balance)}"></span>
+                                <br/>
+                                <small class="account-bank-name" th:text="'Bank: ' + ${bankNames[account.bankId]}"></small>
+                                <br/>
+                                <small class="text-success" th:text="'一年利息: ' + ${#numbers.formatCurrency(account.balance * account.interestRate)}"></small>
+                            </li>
+                        </ul>
+                        <p th:if="${accounts == null || accounts.isEmpty()}" class="text-muted card-text">No accounts found.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">All Available Banks</div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush" th:if="${banks != null && !banks.isEmpty()}">
+                            <li class="list-group-item" th:each="bank : ${banks}"
+                                th:text="${bank.name} + ' (ID: ' + ${bank.id} + ')'"></li>
+                        </ul>
+                        <p th:if="${banks == null || banks.isEmpty()}" class="text-muted card-text">No banks found.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Add New Account</div>
+                    <div class="card-body">
+                        <form th:action="@{/user/add-account}" method="post">
+                            <div class="form-group">
+                                <label for="addAccountBankId">选择银行：</label>
+                                <select id="addAccountBankId" name="bankId" class="form-control" required>
+                                    <option value="">-- 选择银行 --</option>
+                                    <option th:each="bank : ${banks}" th:value="${bank.id}" th:text="${bank.name}"></option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-info">添加账户</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：转账、充值 -->
+            <div class="col-md-7">
+                <div class="card">
+                    <div class="card-header">Transfer Money</div>
+                    <div class="card-body">
+                        <form th:action="@{/user/transfer}" method="post">
+                            <div class="form-group">
+                                <label for="fromAccountId">From Your Account:</label>
+                                <select id="fromAccountId" name="fromAccountId" class="form-control" required>
+                                    <option value="">-- Select Your Account --</option>
+                                    <option th:each="acc : ${accounts}"
+                                            th:value="${acc.id}"
+                                            th:text="${acc.id} + ' (' + ${bankNames[acc.bankId]} + ') - Bal: ' + ${#numbers.formatCurrency(acc.balance)}"></option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="toAccountId">To Account ID (Any Bank):</label>
+                                <input type="text" id="toAccountId" name="toAccountId" class="form-control" required/>
+                            </div>
+                            <div class="form-group">
+                                <label for="transferAmount">Amount:</label>
+                                <input type="number" id="transferAmount" name="amount" step="0.01" class="form-control" required min="0.01"/>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Transfer</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Recharge Account</div>
+                    <div class="card-body">
+                        <form th:action="@{/user/recharge}" method="post">
+                            <div class="form-group">
+                                <label for="rechargeAccountId">Your Account to Recharge:</label>
+                                <select id="rechargeAccountId" name="accountId" class="form-control" required>
+                                     <option value="">-- Select Your Account --</option>
+                                     <option th:each="acc : ${accounts}"
+                                            th:value="${acc.id}"
+                                            th:text="${acc.id} + ' (' + ${bankNames[acc.bankId]} + ') - Bal: ' + ${#numbers.formatCurrency(acc.balance)}"></option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="rechargeAmount">Amount:</label>
+                                <input type="number" id="rechargeAmount" name="amount" step="0.01" class="form-control" required min="0.01"/>
+                            </div>
+                            <button type="submit" class="btn btn-success">Recharge</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Withdraw</div>
+                    <div class="card-body">
+                        <form th:action="@{/user/withdraw}" method="post">
+                            <div class="form-group">
+                                <label for="withdrawAccountId">Your Account to Withdraw:</label>
+                                <select id="withdrawAccountId" name="accountId" class="form-control" required>
+                                    <option value="">-- Select Your Account --</option>
+                                    <option th:each="acc : ${accounts}"
+                                            th:value="${acc.id}"
+                                            th:text="${acc.id} + ' (' + ${bankNames[acc.bankId]} + ') - Bal: ' + ${#numbers.formatCurrency(acc.balance)}"></option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="withdrawAmount">Amount:</label>
+                                <input type="number" id="withdrawAmount" name="amount" step="0.01" class="form-control" required min="0.01"/>
+                            </div>
+                            <button type="submit" class="btn btn-warning">Withdraw</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Panel - Banking System</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding-top: 20px; padding-bottom: 20px; background-color: #f8f9fa; }
+        .container { max-width: 1100px; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2, h3 { margin-bottom: 1.5rem; color: #343a40; }
+        h1 { text-align: center; margin-bottom: 2rem; }
+        .list-group-item { background-color: #f8f9fa; border-color: #dee2e6; }
+        .form-section { margin-bottom: 2rem; padding: 1.5rem; border: 1px solid #dee2e6; border-radius: .25rem; background-color: #fdfdff; }
+        .table th, .table td { vertical-align: middle; }
+        .action-links a { margin-right: 10px; }
+        .logout-btn { position: absolute; top: 20px; right: 20px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a th:href="@{/logout}" class="btn btn-danger logout-btn">Logout</a>
+    <h1>Admin Panel</h1>
+
+    <!-- Flash Messages -->
+    <div th:if="${message}" class="alert alert-success" role="alert" th:text="${message}"></div>
+    <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+
+    <!-- Create Bank Section -->
+    <div class="form-section">
+        <h2>Create New Bank</h2>
+        <form th:action="@{/admin/create-bank}" method="post">
+            <div class="form-row">
+                <div class="col-md-8 form-group">
+                    <label for="bankName">Bank Name:</label>
+                    <input type="text" id="bankName" name="bankName" class="form-control" required/>
+                </div>
+                <div class="col-md-4 form-group align-self-end">
+                    <button type="submit" class="btn btn-primary btn-block">Create Bank</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Manage Customers Section -->
+    <div class="form-section">
+        <h2>Manage Customers</h2>
+        <form th:action="@{/admin}" method="get" class="form-inline mb-3">
+            <label for="customerSelect" class="mr-2">Select Customer:</label>
+            <select id="customerSelect" name="selectedCustomerId" class="form-control mr-2" onchange="this.form.submit()">
+                <option value="">-- Select a Customer --</option>
+                <option th:each="cust : ${customers}" th:value="${cust.id}" th:text="${cust.name} + ' (' + ${cust.username} + ')'" th:selected="${selectedCustomer != null && selectedCustomer.id == cust.id}"></option>
+            </select>
+        </form>
+
+        <div th:if="${selectedCustomer != null}">
+            <hr/>
+            <h3 th:text="'Managing Customer: ' + ${selectedCustomer.name}"></h3>
+
+            <!-- Edit Customer Name -->
+            <form th:action="@{/admin/customer/edit-name}" method="post" class="mb-3">
+                <input type="hidden" name="customerId" th:value="${selectedCustomer.id}" />
+                <div class="form-row">
+                    <div class="col-md-6 form-group">
+                        <label for="newName">New Display Name:</label>
+                        <input type="text" id="newName" name="newName" class="form-control" th:value="${selectedCustomer.name}" required />
+                    </div>
+                    <div class="col-md-3 form-group align-self-end">
+                        <button type="submit" class="btn btn-info btn-block">Update Name</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Reset Customer Password -->
+            <form th:action="@{/admin/customer/reset-password}" method="post" class="mb-3">
+                <input type="hidden" name="customerId" th:value="${selectedCustomer.id}" />
+                 <div class="form-row">
+                    <div class="col-md-6 form-group">
+                        <label for="newPassword">New Password:</label>
+                        <input type="password" id="newPassword" name="newPassword" class="form-control" required />
+                    </div>
+                    <div class="col-md-3 form-group align-self-end">
+                        <button type="submit" class="btn btn-warning btn-block">Reset Password</button>
+                    </div>
+                </div>
+            </form>
+
+            <h4>Customer Accounts</h4>
+            <div th:if="${customerAccounts != null && !customerAccounts.isEmpty()}">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Account ID</th>
+                            <th>Balance</th>
+                            <th>Interest Rate (%)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="acc : ${customerAccounts}">
+                            <td th:text="${acc.id}"></td>
+                            <td>
+                                <form th:action="@{/admin/account/edit-balance}" method="post" class="form-inline">
+                                    <input type="hidden" name="accountId" th:value="${acc.id}" />
+                                    <input type="hidden" name="customerId" th:value="${selectedCustomer.id}" />
+                                    <input type="number" name="newBalance" th:value="${acc.balance}" step="0.01" class="form-control form-control-sm mr-2" style="width: 120px;" required />
+                                    <button type="submit" class="btn btn-sm btn-success">Update Balance</button>
+                                </form>
+                            </td>
+                            <td>
+                                <form th:action="@{/admin/account/edit-interest-rate}" method="post" class="form-inline">
+                                    <input type="hidden" name="accountId" th:value="${acc.id}" />
+                                    <input type="hidden" name="customerId" th:value="${selectedCustomer.id}" />
+                                    <input type="number" name="newInterestRate" th:value="${acc.interestRate * 100}" step="0.01" class="form-control form-control-sm mr-2" style="width: 100px;" required />
+                                    <button type="submit" class="btn btn-sm btn-info">Update Rate</button>
+                                </form>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p th:if="${customerAccounts == null || customerAccounts.isEmpty()}" class="text-muted">No accounts found for this customer.</p>
+        </div>
+    </div>
+
+
+    <!-- Overview Section (Optional - can be expanded) -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <h2>All Banks</h2>
+            <ul class="list-group" th:if="${!banks.isEmpty()}">
+                <li class="list-group-item" th:each="bank : ${banks}" th:text="${bank.name} + ' (ID: ' + ${bank.id} + ')'"></li>
+            </ul>
+            <p th:if="${banks.isEmpty()}" class="text-muted">No banks found.</p>
+        </div>
+        <div class="col-md-8">
+            <h2>All Customers Overview</h2>
+             <ul class="list-group" th:if="${!customers.isEmpty()}">
+                <li class="list-group-item" th:each="c : ${customers}" th:text="${c.name} + ' (' + c.username + ') - Roles: ' + ${c.roles}"></li>
+            </ul>
+            <p th:if="${customers.isEmpty()}" class="text-muted">No customers registered.</p>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

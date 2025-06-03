@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Account Details - Banking System</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding-top: 20px; padding-bottom: 20px; background-color: #f8f9fa; }
+        .container { max-width: 900px; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2 { margin-bottom: 1.5rem; color: #343a40; }
+        h1 { text-align: center; margin-bottom: 2rem; }
+        .list-group-item { background-color: #f8f9fa; border-color: #dee2e6; }
+        .user-info p { font-size: 1.1rem; }
+        .logout-link { margin-top: 20px; display: inline-block;}
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Account Details</h1>
+
+    <div th:if="${customer != null}" class="user-info mb-4">
+        <p>Welcome, <strong th:text="${customer.name}">User</strong>!</p>
+        <p th:if="${session.currentBank != null}">Current Bank: <span class="badge badge-info" th:text="${session.currentBank}">Unknown</span></p>
+    </div>
+     <div th:if="${customer == null}" class="alert alert-warning">
+        <p>Please <a th:href="@{/login}" class="alert-link">log in</a> to access your account.</p>
+    </div>
+
+    <div th:if="${customer != null}">
+        <h2>Your Accounts</h2>
+        <ul class="list-group mb-4" th:if="${accounts != null and !accounts.isEmpty()}">
+            <li class="list-group-item" th:each="account : ${accounts}">
+                <span th:text="'Account ID: ' + ${account.id} + ' | Balance: ' + ${#numbers.formatCurrency(account.balance)}"></span>
+                <br/>
+                <span th:text="'利率: ' + ${account.interestRate * 100} + '%'"></span>
+                <br/>
+                <span th:text="'一年利息: ' + ${#numbers.formatCurrency(account.balance * account.interestRate)}"></span>
+            </li>
+        </ul>
+        <p th:if="${accounts == null or accounts.isEmpty()}" class="text-muted">No accounts found.</p>
+
+        <h2>Available Banks</h2>
+        <ul class="list-group mb-4" th:if="${banks != null and !banks.isEmpty()}">
+            <li class="list-group-item" th:each="bank : ${banks}"
+                th:text="${bank.name} + ' (ID: ' + ${bank.id} + ')'"></li>
+        </ul>
+        <p th:if="${banks == null or banks.isEmpty()}" class="text-muted">No banks found.</p>
+
+        <div class="d-flex justify-content-center mt-4 flex-wrap">
+            <a th:href="@{/}" class="btn btn-secondary mr-2 mb-2" style="min-width: 140px;">Back to Home</a>
+            <a th:href="@{/logout}" class="btn btn-danger mb-2" style="min-width: 140px;">Logout</a>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
