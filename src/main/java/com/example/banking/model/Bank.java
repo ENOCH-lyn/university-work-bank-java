@@ -24,6 +24,8 @@ public class Bank {
         this.name = name;
     }
 
+    // Getters and Setters
+
     /**
      * 获取银行ID。
      * @return 银行ID

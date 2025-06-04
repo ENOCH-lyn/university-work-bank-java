@@ -32,6 +32,8 @@ public class Account {
         this.balance = 0.0;
         this.interestRate = 0.01;
     }
+    
+    //getters and setters
 
     /**
      * 获取账户ID。

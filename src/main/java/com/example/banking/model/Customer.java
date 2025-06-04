@@ -37,13 +37,15 @@ public class Customer {
      * @param cardNumber 银行卡号
      */
     public Customer(String id, String name, String username, String passwordHash, String cardNumber) {
-        this();
+        this();// 初始化角色为ROLE_USER
         this.id = id;
         this.name = name;
         this.username = username;
         this.passwordHash = passwordHash;
         this.cardNumber = cardNumber;
     }
+
+    // Getters and Setters
 
     /**
      * 获取客户ID。

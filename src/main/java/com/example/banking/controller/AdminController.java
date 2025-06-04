@@ -14,7 +14,6 @@ package com.example.banking.controller;
  * * 通过 @PreAuthorize 注解限制访问权限，确保只有具有 ADMIN 角色的用户可以访问这些功能。
  * * @ENOCH
 */
-import com.example.banking.model.Account;
 import com.example.banking.model.Customer;
 import com.example.banking.service.BankingService;
 import org.slf4j.Logger;
@@ -30,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")

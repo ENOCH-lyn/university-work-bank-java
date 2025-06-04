@@ -36,7 +36,7 @@ public class BankingService {
     private int accountNumberCounter = 1000;
 
     /**
-     * 初始化服务，加载数据并创建默认银行和管理员（如无）。
+     * 初始化服务，加载数据并创建默认银行和管理员（若无）
      */
     @PostConstruct
     public void init() {

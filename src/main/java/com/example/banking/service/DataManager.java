@@ -11,6 +11,7 @@ import java.util.List;
  * DataManager
  *
  * 提供银行数据的保存与加载功能，使用JSON文件进行持久化。
+ * 保存路径为当前工作目录下的data.json文件。
  */
 public class DataManager {
     private static final String DATA_FILE = "data.json";
